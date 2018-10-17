@@ -4,6 +4,7 @@
 
 - nodejs https://nodejs.org/en/ (v10)
 - Kafka (v2)
+- Mongodb (v4)
 
 ## Configuration
 
@@ -84,7 +85,7 @@ npm run lint
 npm run lint:fix # To fix possible lint errors
 ```
 
-- Start the processor and express server
+- Start the processor
 
 ```bash
 npm start
