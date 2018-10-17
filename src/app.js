@@ -7,6 +7,7 @@ const config = require('config')
 const _ = require('lodash')
 const logger = require('./common/logger')
 const Kafka = require('no-kafka')
+const healthcheck = require('topcoder-healthcheck-dropin')
 const ProcessorService = require('./services/ProcessorService')
 
 // start Kafka consumer
@@ -66,10 +67,25 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, (
     .catch((err) => logger.logFullError(err))
 })
 
+// check if there is kafka connection alive
+function check () {
+  if (!consumer.client.initialBrokers && !consumer.client.initialBrokers.length) {
+    return false
+  }
+  let connected = true
+  consumer.client.initialBrokers.forEach(conn => {
+    logger.debug(`url ${conn.server()} - connected=${conn.connected}`)
+    connected = conn.connected & connected
+  })
+  return connected
+}
+
 consumer
   .init()
   // consume configured topics
   .then(() => {
+    healthcheck.init([check])
+
     const topics = [config.CREATE_DATA_TOPIC, config.UPDATE_DATA_TOPIC, config.DELETE_DATA_TOPIC]
     _.each(topics, (tp) => {
       consumer.subscribe(tp, { time: Kafka.LATEST_OFFSET }, dataHandler)
