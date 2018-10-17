@@ -9,42 +9,13 @@ const m2mAuth = require('tc-core-library-js').auth.m2m
 
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 
-/**
- * Wrap async function to standard express function
- * @param {Function} fn the async function
- * @returns {Function} the wrapped function
- */
-const wrapExpress = fn => (req, res, next) => {
-  fn(req, res, next).catch(next)
-}
-
-/**
- * Wrap all functions from object
- * @param obj the object (controller exports)
- * @returns {Object|Array} the wrapped object
- */
-const autoWrapExpress = (obj) => {
-  if (_.isArray(obj)) {
-    return obj.map(autoWrapExpress)
-  }
-  if (_.isFunction(obj)) {
-    if (obj.constructor.name === 'AsyncFunction') {
-      return wrapExpress(obj)
-    }
-    return obj
-  }
-  _.each(obj, (value, key) => {
-    obj[key] = autoWrapExpress(value)
-  })
-  return obj
-}
-
 /*
  * Check if the Group ID is configured to be processed
  * @param {String []} groupIds Array of group ID
  * @returns {Boolean} True if any one of the Group ID is present in config
  */
 const isGroupIdValid = (groupIds) => {
+  groupIds = ['20000000']
   // Get the Group IDs from config
   const confGroupIds = config.GROUP_IDS.split(',')
   if (_.intersectionBy(confGroupIds, groupIds, parseInt).length !== 0) {
@@ -75,8 +46,6 @@ const reqToAPI = async (path) => {
 }
 
 module.exports = {
-  wrapExpress,
-  autoWrapExpress,
   isGroupIdValid,
   reqToAPI
 }

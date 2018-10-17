@@ -29,7 +29,7 @@ logger.logFullError = (err) => {
   if (!err) {
     return
   }
-  const args = Array.prototype.slice.call(arguments)// eslint-disable-line
+  const args = Array.prototype.slice.call(arguments) // eslint-disable-line
   args.shift()
   logger.error(util.inspect(err))
   err.logged = true // eslint-disable-line
