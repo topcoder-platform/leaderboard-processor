@@ -12,7 +12,7 @@ const { Leaderboard } = require('../models')
  * Handle create / update topic messages from Kafka queue
  * @param {Object} message the Kafka message in JSON format
  */
-const upsert = async (message) => {
+async function upsert (message) {
   const existRecord = await Leaderboard.findOne({ reviewSummationId: message.payload.id })
 
   if (existRecord) {
@@ -34,7 +34,7 @@ const upsert = async (message) => {
     if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
       logger.debug(`Group ID of Challenge # ${submission.body.challengeId} is not configured for processing!`)
       // Ignore the message
-      return
+      return false
     }
 
     const memberDetail = await helper.reqToAPI(`${config.MEMBER_API_URL}?filter=id=${submission.body.memberId}`)
@@ -67,7 +67,7 @@ upsert.schema = {
  * Handle delete topic message from Kafka Queue
  * @param {Object} message the Kafka message in JSON format
  */
-const remove = async (message) => {
+async function remove (message) {
   // Remove the record from MongoDB
   await Leaderboard.deleteOne({ reviewSummationId: message.payload.id })
 }
