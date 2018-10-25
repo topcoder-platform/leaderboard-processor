@@ -8,4 +8,5 @@ WORKDIR /leaderboard-processor
 
 # Install the dependencies from package.json
 RUN npm install
-CMD npm start
+
+RUN npm start
