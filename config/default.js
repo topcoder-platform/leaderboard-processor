@@ -20,6 +20,7 @@ module.exports = {
   GROUP_IDS: process.env.GROUP_IDS || '202343,20000000', // Comma separated string of Group IDs
 
   SUBMISSION_API_URL: process.env.SUBMISSION_API_URL || 'https://api.topcoder-dev.com/v5/submissions',
+  REVIEW_SUMMATION_API_URL: process.env.REVIEW_SUMMATION_API_URL || 'https://api.topcoder-dev.com/v5/reviewSummations',
   CHALLENGE_API_URL: process.env.CHALLENGE_API_URL || 'https://api.topcoder-dev.com/v3/challenges',
   MEMBER_API_URL: process.env.MEMBER_API_URL || 'https://api.topcoder-dev.com/v3/users',
 
