@@ -13,7 +13,13 @@ const { Leaderboard } = require('../models')
  * @param {Object} message the Kafka message in JSON format
  */
 const upsert = async (message) => {
-  const existRecord = await Leaderboard.findOne({ reviewSummationId: message.payload.id })
+  // const existRecord = await Leaderboard.findOne({$and: [{challengeId: }]})
+
+  const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
+  const challengeDetail = await helper.reqToAPI(`${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
+  
+  // const existRecord = await Leaderboard.findOne({ reviewSummationId: message.payload.id })
+  const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
 
   if (existRecord) {
     logger.debug(`Record with ID # ${message.payload.id} exists in database. Updating the score`)
@@ -27,9 +33,8 @@ const upsert = async (message) => {
     )
   } else {
     logger.debug(`Record with ID # ${message.payload.id} does not exists in database. Creating the record`)
-    const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
-
-    const challengeDetail = await helper.reqToAPI(`${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
+    // const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
+    // const challengeDetail = await helper.reqToAPI(`${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
 
     if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
       logger.debug(`Group ID of Challenge # ${submission.body.challengeId} is not configured for processing!`)
