@@ -28,7 +28,10 @@ const upsert = async (message) => {
         _id: existRecord._id
       },
       {
-        $set: { aggregateScore: message.payload.aggregateScore }
+        $set: { 
+          aggregateScore: message.payload.aggregateScore,
+          reviewSummationId: message.payload.id
+        }
       }
     )
   } else {
