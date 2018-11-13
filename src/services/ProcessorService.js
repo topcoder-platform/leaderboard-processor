@@ -34,12 +34,14 @@ const upsert = async (message) => {
   const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
 
   let testsPassed
+  let totalTestCases
 
-  logger.debug(`metadata # ${message.payload.metadata} `)
   if (message.payload.metadata) {
     testsPassed = getTestsPassed(message.payload.metadata)
+    totalTestCases = message.payload.metadata.tests.total
   } else {
     testsPassed = 0
+    totalTestCases = 0
   }
 
   if (existRecord) {
@@ -53,7 +55,7 @@ const upsert = async (message) => {
           aggregateScore: message.payload.aggregateScore,
           reviewSummationId: message.payload.id,
           testsPassed,
-          totalTestCases: message.payload.metadata.tests.total
+          totalTestCases
         }
       }
     )
@@ -78,7 +80,7 @@ const upsert = async (message) => {
       handle: memberDetail.body.result.content[0].handle,
       aggregateScore: message.payload.aggregateScore,
       testsPassed,
-      totalTestCases: message.payload.metadata.tests.total
+      totalTestCases
     }
 
     await Leaderboard.create(record)
