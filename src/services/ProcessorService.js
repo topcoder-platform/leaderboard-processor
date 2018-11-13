@@ -15,16 +15,11 @@ const { Leaderboard } = require('../models')
 function getTestsPassed (metadata = {}) {
   const tests = metadata.tests || {}
 
-  logger.debug(`metadata # ${metadata} `)
-  logger.debug(`tests # ${tests} `)
-  
   let testsPassed = tests.total - tests.pending - tests.failed
 
   if (!testsPassed) {
     testsPassed = 0
   }
-
-  logger.debug(`testsPassed # ${testsPassed} `)
 
   return testsPassed
 }
@@ -38,17 +33,12 @@ const upsert = async (message) => {
   
   const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
 
-  // const reviewSummation = await helper.reqToAPI(`${config.REVIEW_SUMMATION_API_URL}/${message.payload.id}`)
-
   let testsPassed
 
   logger.debug(`metadata # ${message.payload.metadata} `)
   if (message.payload.metadata) {
-    logger.debug(`Inside IF `)
     testsPassed = getTestsPassed(message.payload.metadata)
-    logger.debug(`# ${testsPassed} `)
   } else {
-    logger.debug(`Inside ELSE `)
     testsPassed = 0
   }
 
