@@ -15,6 +15,10 @@ const { Leaderboard } = require('../models')
 function getTestsPassed (metadata = {}) {
   const tests = metadata.tests || {}
 
+  logger.info('----------------')
+  logger.info(tests)
+  logger.info('----------------')
+  
   let testsPassed = tests.total - tests.pending - tests.failed
 
   if (!testsPassed) {
