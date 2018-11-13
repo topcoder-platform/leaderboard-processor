@@ -52,7 +52,8 @@ const upsert = async (message) => {
         $set: { 
           aggregateScore: message.payload.aggregateScore,
           reviewSummationId: message.payload.id,
-          testsPassed
+          testsPassed,
+          totalTestCases: message.payload.metadata.tests.total
         }
       }
     )
@@ -76,7 +77,8 @@ const upsert = async (message) => {
       challengeId: submission.body.challengeId,
       handle: memberDetail.body.result.content[0].handle,
       aggregateScore: message.payload.aggregateScore,
-      testsPassed
+      testsPassed,
+      totalTestCases: message.payload.metadata.tests.total
     }
 
     await Leaderboard.create(record)
