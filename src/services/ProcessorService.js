@@ -9,11 +9,39 @@ const helper = require('../common/helper')
 const { Leaderboard } = require('../models')
 
 /**
+ * Returns the tests passed using the metadata information
+ * @param {object} metadata the object from which to retrieve the tests passed
+ */
+function getTestsPassed (metadata = {}) {
+  const tests = metadata.tests || {}
+
+  let testsPassed = tests.total - tests.pending - tests.failed
+
+  if (!testsPassed) {
+    testsPassed = 0
+  }
+
+  return testsPassed
+}
+
+/**
  * Handle create / update topic messages from Kafka queue
  * @param {Object} message the Kafka message in JSON format
  */
 const upsert = async (message) => {
-  const existRecord = await Leaderboard.findOne({ reviewSummationId: message.payload.id })
+  const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
+  
+  const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
+
+  const reviewSummation = await helper.reqToAPI(`${config.REVIEW_SUMMATION_API_URL}/${message.payload.id}`)
+
+  let testsPassed
+
+  if (reviewSummation.metadata) {
+    testsPassed = getTestsPassed(reviewSummation.metadata)
+  } else {
+    testsPassed = 0
+  }
 
   if (existRecord) {
     logger.debug(`Record with ID # ${message.payload.id} exists in database. Updating the score`)
@@ -22,13 +50,15 @@ const upsert = async (message) => {
         _id: existRecord._id
       },
       {
-        $set: { aggregateScore: message.payload.aggregateScore }
+        $set: { 
+          aggregateScore: message.payload.aggregateScore,
+          reviewSummationId: message.payload.id,
+          testsPassed
+        }
       }
     )
   } else {
     logger.debug(`Record with ID # ${message.payload.id} does not exists in database. Creating the record`)
-    const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
-
     const challengeDetail = await helper.reqToAPI(`${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
 
     if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
@@ -46,7 +76,8 @@ const upsert = async (message) => {
       memberId: submission.body.memberId,
       challengeId: submission.body.challengeId,
       handle: memberDetail.body.result.content[0].handle,
-      aggregateScore: message.payload.aggregateScore
+      aggregateScore: message.payload.aggregateScore,
+      testsPassed
     }
 
     await Leaderboard.create(record)
