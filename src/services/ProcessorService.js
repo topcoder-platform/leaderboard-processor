@@ -38,14 +38,14 @@ const upsert = async (message) => {
   
   const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
 
-  const reviewSummation = await helper.reqToAPI(`${config.REVIEW_SUMMATION_API_URL}/${message.payload.id}`)
+  // const reviewSummation = await helper.reqToAPI(`${config.REVIEW_SUMMATION_API_URL}/${message.payload.id}`)
 
   let testsPassed
 
-  logger.debug(`metadata # ${reviewSummation.metadata} `)
-  if (reviewSummation.metadata) {
+  logger.debug(`metadata # ${message.payload.metadata} `)
+  if (message.payload.metadata) {
     logger.debug(`Inside IF `)
-    testsPassed = getTestsPassed(reviewSummation.metadata)
+    testsPassed = getTestsPassed(message.payload.metadata)
     logger.debug(`# ${testsPassed} `)
   } else {
     logger.debug(`Inside ELSE `)
