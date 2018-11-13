@@ -115,7 +115,7 @@ bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.no
 4. Write the following message to the Console
 
 ```bash
-{ "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0507", "aggregateScore": 87.5, "isPassing": true, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "submissionId": "a34e1158-2c27-4d38-b079-5e5cca1bdcf7", "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
+{ "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0507", "aggregateScore": 87.5, "isPassing": true, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "submissionId": "fad49103-37ac-4a04-8294-c840483178a5", "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
 ```
 
 5. You could see in the console that message will be processed
