@@ -42,9 +42,13 @@ const upsert = async (message) => {
 
   let testsPassed
 
+  logger.debug(`metadata # ${reviewSummation.metadata} `)
   if (reviewSummation.metadata) {
+    logger.debug(`Inside IF `)
     testsPassed = getTestsPassed(reviewSummation.metadata)
+    logger.debug(`# ${testsPassed} `)
   } else {
+    logger.debug(`Inside ELSE `)
     testsPassed = 0
   }
 
