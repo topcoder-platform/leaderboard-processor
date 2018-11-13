@@ -36,7 +36,7 @@ const upsert = async (message) => {
   let testsPassed
   let totalTestCases
 
-  if (message.payload.metadata) {
+  if (Object.getOwnPropertyNames(message.payload.metadata).length !== 0) {
     testsPassed = getTestsPassed(message.payload.metadata)
     totalTestCases = message.payload.metadata.tests.total
   } else {
