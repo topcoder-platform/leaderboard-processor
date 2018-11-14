@@ -6,14 +6,16 @@ const config = require('config')
 const joi = require('joi')
 const logger = require('../common/logger')
 const helper = require('../common/helper')
-const { Leaderboard } = require('../models')
+const {
+  Leaderboard
+} = require('../models')
 
 /**
  * Returns the tests passed using the metadata information
  * @param {object} metadata the object from which to retrieve the tests passed
  */
-function getTestsPassed (metadata = {}) {
-  const tests = metadata.tests || {}
+function getTestsPassed(metadata = {}) {
+  const tests = metadata.assertions || {}
 
   let testsPassed = tests.total - tests.pending - tests.failed
 
@@ -28,10 +30,16 @@ function getTestsPassed (metadata = {}) {
  * Handle create / update topic messages from Kafka queue
  * @param {Object} message the Kafka message in JSON format
  */
-const upsert = async (message) => {
+const upsert = async(message) => {
   const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
-  
-  const existRecord = await Leaderboard.findOne({$and: [{challengeId: submission.body.challengeId}, {memberId: submission.body.memberId}]})
+
+  const existRecord = await Leaderboard.findOne({
+    $and: [{
+      challengeId: submission.body.challengeId
+    }, {
+      memberId: submission.body.memberId
+    }]
+  })
 
   let testsPassed
   let totalTestCases
@@ -46,26 +54,24 @@ const upsert = async (message) => {
 
   if (existRecord) {
     logger.debug(`Record with ID # ${message.payload.id} exists in database. Updating the score`)
-    await Leaderboard.updateOne(
-      {
-        _id: existRecord._id
-      },
-      {
-        $set: { 
-          aggregateScore: message.payload.aggregateScore,
-          reviewSummationId: message.payload.id,
-          testsPassed,
-          totalTestCases
-        }
+    await Leaderboard.updateOne({
+      _id: existRecord._id
+    }, {
+      $set: {
+        aggregateScore: message.payload.aggregateScore,
+        reviewSummationId: message.payload.id,
+        testsPassed,
+        totalTestCases
       }
-    )
+    })
   } else {
     logger.debug(`Record with ID # ${message.payload.id} does not exists in database. Creating the record`)
-    const challengeDetail = await helper.reqToAPI(`${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
+    const challengeDetail = await helper.reqToAPI(
+      `${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
 
     if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
       logger.debug(`Group ID of Challenge # ${submission.body.challengeId} is not configured for processing!`)
-      // Ignore the message
+        // Ignore the message
       return
     }
 
@@ -101,9 +107,11 @@ upsert.schema = {
  * Handle delete topic message from Kafka Queue
  * @param {Object} message the Kafka message in JSON format
  */
-const remove = async (message) => {
+const remove = async(message) => {
   // Remove the record from MongoDB
-  await Leaderboard.deleteOne({ reviewSummationId: message.payload.id })
+  await Leaderboard.deleteOne({
+    reviewSummationId: message.payload.id
+  })
 }
 
 remove.schema = {
