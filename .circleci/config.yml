@@ -32,8 +32,8 @@ jobs:
           name: Running MasterScript.
           command: |
             git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-            cp ./../buildscript/master_deply_v4.2.sh .
-            ./master_deply_v4.2.sh -d ECS -e DEV -t latest -s leaderboard-processor -i leaderboard-processor
+            cp ./../buildscript/master_deploy.sh .
+            ./master_deploy.sh -d ECS -e DEV -t latest -s leaderboard-processor -i leaderboard-processor
 
   # Build & Deploy against production backend
   "build-prod":
@@ -49,8 +49,8 @@ jobs:
           name: Running MasterScript.
           command: |
             git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-            cp ./../buildscript/master_deply_v4.2.sh .
-            #./master_deply_v4.2.sh -d ECS -e PROD  -t latest -s leaderboard-processor -i leaderboard-processor
+            cp ./../buildscript/master_deploy.sh .
+            #./master_deploy.sh -d ECS -e PROD  -t latest -s leaderboard-processor -i leaderboard-processor
 
 workflows:
   version: 2
