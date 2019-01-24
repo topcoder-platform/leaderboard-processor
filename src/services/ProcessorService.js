@@ -14,7 +14,7 @@ const {
  * Returns the tests passed using the metadata information
  * @param {object} metadata the object from which to retrieve the tests passed
  */
-function getTestsPassed(metadata = {}) {
+function getTestsPassed (metadata = {}) {
   const tests = metadata.assertions || {}
 
   let testsPassed = tests.total - tests.pending - tests.failed
@@ -30,7 +30,7 @@ function getTestsPassed(metadata = {}) {
  * Handle create / update topic messages from Kafka queue
  * @param {Object} message the Kafka message in JSON format
  */
-const upsert = async(message) => {
+const upsert = async (message) => {
   const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
 
   const existRecord = await Leaderboard.findOne({
@@ -71,7 +71,7 @@ const upsert = async(message) => {
 
     if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
       logger.debug(`Group ID of Challenge # ${submission.body.challengeId} is not configured for processing!`)
-        // Ignore the message
+      // Ignore the message
       return
     }
 
@@ -107,7 +107,7 @@ upsert.schema = {
  * Handle delete topic message from Kafka Queue
  * @param {Object} message the Kafka message in JSON format
  */
-const remove = async(message) => {
+const remove = async (message) => {
   // Remove the record from MongoDB
   await Leaderboard.deleteOne({
     reviewSummationId: message.payload.id
