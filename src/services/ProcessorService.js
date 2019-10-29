@@ -6,90 +6,22 @@ const config = require('config')
 const joi = require('joi')
 const logger = require('../common/logger')
 const helper = require('../common/helper')
-const {
-  Leaderboard
-} = require('../models')
-
-/**
- * Returns the tests passed using the metadata information
- * @param {object} metadata the object from which to retrieve the tests passed
- */
-function getTestsPassed(metadata = {}) {
-  const tests = metadata.assertions || {}
-
-  let testsPassed = tests.total - tests.pending - tests.failed
-
-  if (!testsPassed) {
-    testsPassed = 0
-  }
-
-  return testsPassed
-}
 
 /**
  * Handle create / update topic messages from Kafka queue
  * @param {Object} message the Kafka message in JSON format
  */
-const upsert = async(message) => {
-  const submission = await helper.reqToAPI(`${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
-
-  const existRecord = await Leaderboard.findOne({
-    $and: [{
-      challengeId: submission.body.challengeId
-    }, {
-      memberId: submission.body.memberId
-    }]
-  })
-
-  let testsPassed
-  let totalTestCases
-
-  if (Object.getOwnPropertyNames(message.payload.metadata).length !== 0) {
-    testsPassed = getTestsPassed(message.payload.metadata)
-    totalTestCases = message.payload.metadata.tests.total
+async function upsert (message) {
+  const submission = await helper.reqToAPI('GET', `${config.SUBMISSION_API_URL}/${message.payload.submissionId}`)
+  const challengeId = submission.body.challengeId
+  const memberId = submission.body.memberId
+  const records = await helper.reqToAPI('GET', `${config.LEADERBOARD_API_URL}?challengeId=${challengeId}&memberId=${memberId}`)
+  if (records.body.length === 0) {
+    logger.debug(`Record with Challenge ID # ${challengeId} and Member ID # ${memberId} does not exists in database. Creating the record`)
+    await helper.reqToAPI('POST', `${config.LEADERBOARD_API_URL}/challenge/${challengeId}/member/${memberId}`, message.payload)
   } else {
-    testsPassed = 0
-    totalTestCases = 0
-  }
-
-  if (existRecord) {
-    logger.debug(`Record with ID # ${message.payload.id} exists in database. Updating the score`)
-    await Leaderboard.updateOne({
-      _id: existRecord._id
-    }, {
-      $set: {
-        aggregateScore: message.payload.aggregateScore,
-        reviewSummationId: message.payload.id,
-        testsPassed,
-        totalTestCases
-      }
-    })
-  } else {
-    logger.debug(`Record with ID # ${message.payload.id} does not exists in database. Creating the record`)
-    const challengeDetail = await helper.reqToAPI(
-      `${config.CHALLENGE_API_URL}?filter=id=${submission.body.challengeId}`)
-
-    if (!helper.isGroupIdValid(challengeDetail.body.result.content[0].groupIds)) {
-      logger.debug(`Group ID of Challenge # ${submission.body.challengeId} is not configured for processing!`)
-        // Ignore the message
-      return
-    }
-
-    const memberDetail = await helper.reqToAPI(`${config.MEMBER_API_URL}?filter=id=${submission.body.memberId}`)
-
-    // Record to be written into MongoDB
-    const record = {
-      reviewSummationId: message.payload.id,
-      submissionId: message.payload.submissionId,
-      memberId: submission.body.memberId,
-      challengeId: submission.body.challengeId,
-      handle: memberDetail.body.result.content[0].handle,
-      aggregateScore: message.payload.aggregateScore,
-      testsPassed,
-      totalTestCases
-    }
-
-    await Leaderboard.create(record)
+    logger.debug(`Record with Challenge ID # ${challengeId} and Member ID # ${memberId} exists in database. Updating the score`)
+    await helper.reqToAPI('PATCH', `${config.LEADERBOARD_API_URL}/challenge/${challengeId}/member/${memberId}`, message.payload)
   }
 }
 
@@ -99,7 +31,9 @@ upsert.schema = {
     originator: joi.string().required(),
     timestamp: joi.date().required(),
     'mime-type': joi.string().required(),
-    payload: joi.object().required()
+    payload: joi.object().keys({
+      submissionId: joi.string().required()
+    }).unknown(true).required()
   }).required()
 }
 
@@ -107,11 +41,8 @@ upsert.schema = {
  * Handle delete topic message from Kafka Queue
  * @param {Object} message the Kafka message in JSON format
  */
-const remove = async(message) => {
-  // Remove the record from MongoDB
-  await Leaderboard.deleteOne({
-    reviewSummationId: message.payload.id
-  })
+async function remove (message) {
+  await helper.reqToAPI('DELETE', `${config.LEADERBOARD_API_URL}/reviewSummation/${message.payload.id}`)
 }
 
 remove.schema = {
@@ -120,7 +51,9 @@ remove.schema = {
     originator: joi.string().required(),
     timestamp: joi.date().required(),
     'mime-type': joi.string().required(),
-    payload: joi.object().required()
+    payload: joi.object().keys({
+      id: joi.string().required()
+    }).unknown(true).required()
   }).required()
 }
 

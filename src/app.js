@@ -4,7 +4,6 @@
 
 require('./bootstrap')
 const config = require('config')
-const _ = require('lodash')
 const logger = require('./common/logger')
 const Kafka = require('no-kafka')
 const healthcheck = require('topcoder-healthcheck-dropin')
@@ -13,11 +12,11 @@ const ProcessorService = require('./services/ProcessorService')
 // start Kafka consumer
 logger.info('Start Kafka consumer.')
 // create consumer
-const options = { connectionString: config.KAFKA_URL }
+const options = { connectionString: config.KAFKA_URL, groupId: config.KAFKA_GROUP_ID }
 if (config.KAFKA_CLIENT_CERT && config.KAFKA_CLIENT_CERT_KEY) {
   options.ssl = { cert: config.KAFKA_CLIENT_CERT, key: config.KAFKA_CLIENT_CERT_KEY }
 }
-const consumer = new Kafka.SimpleConsumer(options)
+const consumer = new Kafka.GroupConsumer(options)
 
 // data handler
 const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, (m) => {
@@ -62,9 +61,10 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, (
         throw new Error(`Invalid topic: ${topic}`)
     }
   })()
-    // commit offset
-    .then(() => consumer.commitOffset({ topic, partition, offset: m.offset }))
+    // commit offset regardless of error
+    .then(() => logger.debug('Successfully processed message'))
     .catch((err) => logger.logFullError(err))
+    .finally(() => consumer.commitOffset({ topic, partition, offset: m.offset }))
 })
 
 // check if there is kafka connection alive
@@ -80,19 +80,23 @@ function check () {
   return connected
 }
 
+const topics = [config.CREATE_DATA_TOPIC, config.UPDATE_DATA_TOPIC, config.DELETE_DATA_TOPIC]
+
 consumer
-  .init()
+  .init([{
+    subscriptions: topics,
+    handler: dataHandler
+  }])
   // consume configured topics
   .then(() => {
+    logger.info('Initialized.......')
     healthcheck.init([check])
-
-    const topics = [config.CREATE_DATA_TOPIC, config.UPDATE_DATA_TOPIC, config.DELETE_DATA_TOPIC]
-    _.each(topics, (tp) => {
-      consumer.subscribe(tp, { time: Kafka.LATEST_OFFSET }, dataHandler)
-    })
+    logger.info('Adding topics successfully.......')
+    logger.info(topics)
+    logger.info('Kick Start.......')
   })
-  .catch((err) => logger.logFullError(err))
+  .catch((err) => logger.error(err))
 
-module.exports = {
-  kafkaConsumer: consumer
+if (process.env.NODE_ENV === 'test') {
+  module.exports = consumer
 }
