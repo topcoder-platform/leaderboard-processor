@@ -9,19 +9,32 @@ const testTopics = {
     testMessage: {
       topic: 'submission.notification.create',
       originator: 'submission-api',
-      timestamp: '2018-02-03T00:00:00',
+      timestamp: '2018-08-06T15:46:05.575Z',
       'mime-type': 'application/json',
       payload: {
-        resource: 'reviewSummation',
-        id: 'd24d4180-65aa-42ec-a945-5fd21dec0508',
+        resource: 'review',
+        id: '49871146-eb0a-4d0e-ab9a-adc94018c5da',
         submissionId: 'a34e1158-2c27-4d38-b079-5e5cca1bdcf7',
-        aggregateScore: 88,
-        scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
-        isPassing: true,
-        created: '2018-01-01T00:00:00',
-        updated: '2018-01-02T00:00:00',
-        createdBy: 'admin',
-        updatedBy: 'user'
+        score: -1,
+        scoreCardId: 30001852,
+        metadata: {
+          testType: 'provisional',
+          assertions: {
+            pending: 0,
+            failed: 1,
+            total: 10
+          },
+          tests: {
+            total: 10
+          }
+        },
+        created: '2019-11-06T15:02:35.539Z',
+        updated: '2019-11-06T15:02:35.539Z',
+        createdBy: 'I3etJtTqlz1XHgCXduBN1us705ufrykl@clients',
+        updatedBy: 'I3etJtTqlz1XHgCXduBN1us705ufrykl@clients',
+        status: 'completed',
+        reviewerId: '0301619c-3d9e-44c3-85cb-c20311100f7f',
+        typeId: '52c91e85-745f-4e62-b592-9879a2dfe9fd'
       }
     }
   },
@@ -31,14 +44,32 @@ const testTopics = {
     testMessage: {
       topic: 'submission.notification.update',
       originator: 'submission-api',
-      timestamp: '2018-02-03T00:00:00',
+      timestamp: '2018-08-06T15:46:05.575Z',
       'mime-type': 'application/json',
       payload: {
-        resource: 'reviewSummation',
-        id: 'd24d4180-65aa-42ec-a945-5fd21dec0509',
+        resource: 'review',
+        id: '49871146-eb0a-4d0e-ab9a-adc94018c5da',
         submissionId: 'a34e1158-2c27-4d38-b079-5e5cca1bdcf8',
-        aggregateScore: 93.5,
-        isPassing: true
+        score: 52,
+        scoreCardId: 30001852,
+        metadata: {
+          testType: 'provisional',
+          assertions: {
+            pending: 0,
+            failed: 2,
+            total: 10
+          },
+          tests: {
+            total: 10
+          }
+        },
+        created: '2019-11-06T15:02:35.539Z',
+        updated: '2019-11-06T15:02:35.539Z',
+        createdBy: 'I3etJtTqlz1XHgCXduBN1us705ufrykl@clients',
+        updatedBy: 'I3etJtTqlz1XHgCXduBN1us705ufrykl@clients',
+        status: 'completed',
+        reviewerId: '0301619c-3d9e-44c3-85cb-c20311100f7f',
+        typeId: '52c91e85-745f-4e62-b592-9879a2dfe9fd'
       }
     }
   },
@@ -51,8 +82,8 @@ const testTopics = {
       timestamp: '2018-02-03T00:00:00',
       'mime-type': 'application/json',
       payload: {
-        resource: 'reviewSummation',
-        id: 'd24d4180-65aa-42ec-a945-5fd21dec0510'
+        resource: 'review',
+        id: '49871146-eb0a-4d0e-ab9a-adc94018c5da'
       }
     }
   }
@@ -79,7 +110,7 @@ const submissionAPIResponse = [
     'created': '2018-08-22T02:41:07.576Z',
     'isFileSubmission': true,
     'type': 'challengesubmission',
-    'url': 'https://topcoder-dev-submissions-dmz.s3.amazonaws.com/a34e1158-2c27-4d38-b079-5e5cca1bdcf7',
+    'url': 'https://topcoder-dev-submissions-dmz.s3.amazonaws.com/a34e1158-2c27-4d38-b079-5e5cca1bdcf8',
     'challengeId': 30051825,
     'filename': 'CORE-TopcoderEventBus-190618-1413.pdf.zip',
     'createdBy': 'lazybaer',

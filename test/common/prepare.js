@@ -25,7 +25,7 @@ prepare(function (done) {
     .reply(200)
     .patch('/v5/leaderboard/challenge/30051825/member/22688726')
     .reply(200)
-    .delete('/v5/leaderboard/reviewSummation/d24d4180-65aa-42ec-a945-5fd21dec0510')
+    .delete('/v5/leaderboard/review/49871146-eb0a-4d0e-ab9a-adc94018c5da')
     .reply(204)
 
   done()

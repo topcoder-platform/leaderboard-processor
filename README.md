@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-- nodejs https://nodejs.org/en/ (v10)
+- Nodejs (v10)
 - Kafka (v2)
 
 ## Configuration
@@ -35,6 +35,7 @@ The following parameters can be set in config files or in env variables:
 Also note that there is a `/health` endpoint that checks for the health of the app. This sets up an expressjs server and listens on the environment variable `PORT`. It's not part of the configuration file and needs to be passed as an environment variable
 
 Configuration for the tests is at `config/test.js`, only add such new configurations different from `config/default.js`
+
 - WAIT_TIME: wait time used in test, default is 1000 or one second
 - LEADERBOARD_API_URL: Leaderboard API URL used in testing
 - SUBMISSION_API_URL: Submission API URL used in testing
@@ -67,7 +68,7 @@ Configuration for the tests is at `config/test.js`, only add such new configurat
 - In the console, write some message, one message per line:
 
 ```bash
-  { "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0508", "submissionId": "a34e1158-2c27-4d38-b079-5e5cca1bdcf7", "aggregateScore": 88, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "isPassing": true, "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
+  {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":1,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
 ```
 
 - optionally, use another terminal, go to same directory, start a consumer to view the messages:
@@ -115,78 +116,52 @@ npm start
 
 2. Refer `README.md` in `leaderboard-api` to start leaderboard api, all operations are under `leaderboard-api` project root folder
 
-- Start mock app and it will listen on 3001 PORT.
+3. Set the necessary environment variables and then run `npm start` command to start processor app(Under this project's root folder)
 
-```bash
-npm run mock-api
-```
+4. Attach to the topic `submission.notification.create` using Kafka console producer
 
-- Ensure you have start MongoDB and properly configure `MONGODB_URL`. Run the following commands to clear and insert test data, step up environment variables and start the app(it will listen on 3002 PORT!).
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.create
+    ```
 
-```bash
-npm run init-db
-npm run test-data
-export CHALLENGE_API_URL=http://localhost:3001/challenges
-export MEMBER_API_URL=http://localhost:3001/users
-export PORT=3002
-npm start
-```
+5. Write the following message to the Console
 
-3. Run the following command to start processor app(Under this project's root folder)
-```bash
-export AUTH0_URL=https://topcoder-dev.auth0.com/oauth/token
-export AUTH0_AUDIENCE=https://m2m.topcoder-dev.com/
-export TOKEN_CACHE_TIME=90
-export AUTH0_CLIENT_ID=8QovDh27SrDu1XSs68m21A1NBP8isvOt
-export AUTH0_CLIENT_SECRET=3QVxxu20QnagdH-McWhVz0WfsQzA1F8taDdGDI4XphgpEYZPcMTF4lX3aeOIeCzh
-export LEADERBOARD_API_URL=http://localhost:3002/v5/leaderboard
-export SUBMISSION_API_URL=http://localhost:3001/submissions
-npm start
-```
+    ```bash
+    {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":1,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    ```
 
-3. Attach to the topic `submission.notification.create` using Kafka console producer
+6. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 does not exists in database. Creating the record`. Also check the leaderboard-api console for more information(Console in step 2)
 
-```bash
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.create
-```
+7. Attach to the topic `submission.notification.update` using Kafka console producer
 
-4. Write the following message to the Console
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.update
+    ```
 
-```bash
-{ "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0508", "submissionId": "a34e1158-2c27-4d38-b079-5e5cca1bdcf7", "aggregateScore": 90, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "isPassing": true, "metadata": { "assertions": { "pending": 0, "failed": 1, "total": 10}, "tests": { "total": 10 } }, "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
-```
+8. Write the following message to the Console
 
-5. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 does not exists in database. Creating the record`. Also check the leaderboard-api console for more information(Console in step 2)
+    ```bash
+        {"topic":"submission.notification.update","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":52,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":2,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    ```
 
-6. Attach to the topic `submission.notification.update` using Kafka console producer
+9. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 exists in database. Updating the score`. Also check the leaderboard-api console for more information(Console in step 2)
 
-```bash
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.update
-```
+10. Attach to the topic `submission.notification.delete` using Kafka console producer
 
-7. Write the following message to the Console
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.delete
+    ```
 
-```bash
-{ "topic":"submission.notification.update", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0508", "submissionId": "a34e1158-2c27-4d38-b079-5e5cca1bdcf7", "aggregateScore": 80, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "isPassing": true, "metadata": { "assertions": { "pending": 0, "failed": 1, "total": 5}, "tests": { "total": 5 } }, "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
-```
+11. Write the following message to the Console. Also check the leaderboard-api console for more information(Console in step 2)
 
-8. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 exists in database. Updating the score`. Also check the leaderboard-api console for more information(Console in step 2)
+    ```bash
+    { "topic":"submission.notification.delete", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"review", "id": "49871146-eb0a-4d0e-ab9a-adc94018c5da" } }
+    ```
 
-9. Attach to the topic `submission.notification.delete` using Kafka console producer
+12. You could see in the console that message will be processed
 
-```bash
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.delete
-```
+## Tests
 
-10. Write the following message to the Console. Also check the leaderboard-api console for more information(Console in step 2)
-
-```bash
-{ "topic":"submission.notification.delete", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0508" } }
-```
-
-11. You could see in the console that message will be processed
-
-### Tests
 Note: you need to stop the processor app before execute test.
 
 - Run the following command to execute unit test and generate coverage report

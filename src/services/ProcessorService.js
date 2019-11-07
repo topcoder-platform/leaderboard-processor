@@ -42,7 +42,7 @@ upsert.schema = {
  * @param {Object} message the Kafka message in JSON format
  */
 async function remove (message) {
-  await helper.reqToAPI('DELETE', `${config.LEADERBOARD_API_URL}/reviewSummation/${message.payload.id}`)
+  await helper.reqToAPI('DELETE', `${config.LEADERBOARD_API_URL}/review/${message.payload.id}`)
 }
 
 remove.schema = {
