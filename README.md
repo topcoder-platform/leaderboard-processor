@@ -2,9 +2,8 @@
 
 ## Dependencies
 
-- nodejs https://nodejs.org/en/ (v10)
+- Nodejs (v10)
 - Kafka (v2)
-- Mongodb (v4)
 
 ## Configuration
 
@@ -20,15 +19,26 @@ The following parameters can be set in config files or in env variables:
 - KAFKA_CLIENT_CERT_KEY: Kafka connection private key, optional;
     if not provided, then SSL connection is not used, direct insecure connection is used;
     if provided, it can be either path to private key file or private key content
+- KAFKA_GROUP_ID: Kafka group id
 - CREATE_DATA_TOPIC: Kafka topic related to creation
 - UPDATE_DATA_TOPIC: Kafka topic related to update
 - DELETE_DATA_TOPIC: Kafka topic related to deletion
-- GROUP_IDS: List of Group IDs which should be used for filtering
+- LEADERBOARD_API_URL: Leaderboard API URL
 - SUBMISSION_API_URL: Submission API URL
-- CHALLENGE_API_URL: Challenge API URL
-- MEMBER_API_URL: Member API URL
-- All variables starting with prefix `AUTH0` corresponds to Auth0 related credentials
-- MONGODB_URL: Mongo DB URL
+- AUTH0_URL: Auth0 URL, used to get TC M2M token
+- AUTH0_AUDIENCE: Auth0 audience, used to get TC M2M token
+- TOKEN_CACHE_TIME: Auth0 token cache time, used to get TC M2M token
+- AUTH0_CLIENT_ID: Auth0 client id, used to get TC M2M token
+- AUTH0_CLIENT_SECRET: Auth0 client secret, used to get TC M2M token
+- AUTH0_PROXY_SERVER_URL: Proxy Auth0 URL, used to get TC M2M token
+
+Also note that there is a `/health` endpoint that checks for the health of the app. This sets up an expressjs server and listens on the environment variable `PORT`. It's not part of the configuration file and needs to be passed as an environment variable
+
+Configuration for the tests is at `config/test.js`, only add such new configurations different from `config/default.js`
+
+- WAIT_TIME: wait time used in test, default is 1000 or one second
+- LEADERBOARD_API_URL: Leaderboard API URL used in testing
+- SUBMISSION_API_URL: Submission API URL used in testing
 
 ## Local Kafka setup
 
@@ -47,7 +57,7 @@ The following parameters can be set in config files or in env variables:
 ```bash
   bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic submission.notification.create
   bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic submission.notification.update
-  bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic notifications.autopilot.events
+  bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic submission.notification.delete
 ```
 
 - verify that the topics are created:
@@ -58,7 +68,7 @@ The following parameters can be set in config files or in env variables:
 - In the console, write some message, one message per line:
 
 ```bash
-  { "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"review", "id": "d34d4180-65aa-42ec-a945-5fd21dec0502", "score": 92.0, "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0501", "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503", "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "submissionId": "fad49103-37ac-4a04-8294-c840483178a5", "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
+  {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":1,"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
 ```
 
 - optionally, use another terminal, go to same directory, start a consumer to view the messages:
@@ -97,65 +107,71 @@ npm start
 - git add .
 - git commit -m init
 - heroku create
-- heroku config:set KAFKA_URL=... AUTH0_URL=... 
+- heroku config:set KAFKA_URL=... AUTH0_URL=...
 - git push heroku master
 
 ## Verification
 
-1. Ensure that Kafka is up and running and the topics `submission.notification.create, submission.notification.update and notifications.autopilot.events` are created in Kafka
+1. Ensure that Kafka is up and running and the topics `submission.notification.create, submission.notification.update and submission.notification.delete` are created in Kafka
 
-2. Ensure that MONGODB_URL configured is correct and ensure that Submission API URL is pointing to `https://api.topcoder-dev.com/v5/submissions` (To verify based on the data present in Dev)
+2. Refer `README.md` in `leaderboard-api` to start leaderboard api, all operations are under `leaderboard-api` project root folder
 
-3. Attach to the topic `submission.notification.create` using Kafka console producer
+3. Set the necessary environment variables and then run `npm start` command to start processor app(Under this project's root folder)
 
-```bash
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.create
-```
+4. Attach to the topic `submission.notification.create` using Kafka console producer
 
-4. Write the following message to the Console
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.create
+    ```
 
-```bash
-{ "topic":"submission.notification.create", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0507", "aggregateScore": 87.5, "isPassing": true, "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503", "submissionId": "fad49103-37ac-4a04-8294-c840483178a5", "created": "2018-05-20T07:00:30.123Z", "updated": "2018-06-01T07:36:28.178Z", "createdBy": "admin", "updatedBy": "admin" } }
-```
+5. Write the following message to the Console
 
-5. You could see in the console that message will be processed
+    ```bash
+    {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":1,"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    ```
 
-6. Data in the Database could be verified directly or by using the `/leaderboard` end point
+6. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 does not exists in database. Creating the record`. Also check the leaderboard-api console for more information(Console in step 2)
 
-7. Open Postman and import the environment, collection in `docs` directory
+7. Attach to the topic `submission.notification.update` using Kafka console producer
 
-8. Trigger the `leaderboard` end point to the verify the data present in Mongo DB
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.update
+    ```
 
-9. Attach to the topic `submission.notifcation.update` using Kafka console producer and write the below message
+8. Write the following message to the Console
 
-```bash
-{ "topic":"submission.notification.update", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0507", "aggregateScore": 85.83 } }
-```
+    ```bash
+    {"topic":"submission.notification.update","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":52,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":2,"total":8}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    ```
 
-10. Validate the data using Postman
+9. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 exists in database. Updating the score`. Also check the leaderboard-api console for more information(Console in step 2)
 
-11. Attach to the topic `submission.notifcation.delete` using Kafka console producer and write the below message
+10. Attach to the topic `submission.notification.delete` using Kafka console producer
 
-```bash
-{ "topic":"submission.notification.delete", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"reviewSummation", "id": "d24d4180-65aa-42ec-a945-5fd21dec0507" } }
-```
+    ```bash
+    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic submission.notification.delete
+    ```
 
-12. Validate the data using Postman
+11. Write the following message to the Console. Also check the leaderboard-api console for more information(Console in step 2)
 
-## Running unit tests and coverage
+    ```bash
+    { "topic":"submission.notification.delete", "originator":"submission-api", "timestamp":"2018-08-06T15:46:05.575Z", "mime-type":"application/json", "payload":{ "resource":"review", "id": "49871146-eb0a-4d0e-ab9a-adc94018c5da" } }
+    ```
 
-To run tests, following Environment variables need to be set up
+12. You could see in the console that message will be processed
 
-- TEST_MONGODB_URL MongoDB URL pointing to Test DB instance
+## Tests
 
-To run unit tests alone
+Note: you need to stop the processor app before execute test.
+
+- Run the following command to execute unit test and generate coverage report
 
 ```bash
 npm run test
 ```
 
-To run unit tests with coverage report
+- Run the following command to execute e2e test and generate coverage report
 
 ```bash
-npm run cov
+npm run e2e
 ```
