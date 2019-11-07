@@ -8,6 +8,7 @@ const logger = require('./common/logger')
 const Kafka = require('no-kafka')
 const healthcheck = require('topcoder-healthcheck-dropin')
 const ProcessorService = require('./services/ProcessorService')
+const helper = require('./common/helper')
 
 // start Kafka consumer
 logger.info('Start Kafka consumer.')
@@ -19,7 +20,7 @@ if (config.KAFKA_CLIENT_CERT && config.KAFKA_CLIENT_CERT_KEY) {
 const consumer = new Kafka.GroupConsumer(options)
 
 // data handler
-const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, (m) => {
+const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, async (m) => {
   const message = m.message.value.toString('utf8')
   logger.info(`Handle Kafka event message; Topic: ${topic}; Partition: ${partition}; Offset: ${
     m.offset}; Message: ${message}.`)
@@ -44,6 +45,13 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, (
     logger.debug(`Ignoring Non review payloads from topic ${messageJSON.topic}.`)
     // ignore the message
     return
+  }
+
+  const avScanTypeId = await helper.getreviewTypeId('AV Scan')
+
+  if (messageJSON.payload.typeId === avScanTypeId) {
+    logger.debug(`Ignoring AV Scan reviews from topic ${messageJSON.topic}`)
+    return false
   }
 
   return (async () => {

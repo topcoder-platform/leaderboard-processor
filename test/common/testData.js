@@ -116,7 +116,16 @@ const submissionAPIResponse = [
   }
 ]
 
+const reviewTypesResponse = [
+  {
+    'name': 'AV Scan',
+    'id': '6da98d0f-e663-4539-8507-cd6c9e0e56d8',
+    'isActive': true
+  }
+]
+
 module.exports = {
   submissionAPIResponse,
-  testTopics
+  testTopics,
+  reviewTypesResponse
 }

@@ -4,7 +4,7 @@
 
 const nock = require('nock')
 const prepare = require('mocha-prepare')
-const { submissionAPIResponse } = require('./testData')
+const { submissionAPIResponse, reviewTypesResponse } = require('./testData')
 
 prepare(function (done) {
   nock(/\.com/)
@@ -27,6 +27,8 @@ prepare(function (done) {
     .reply(200)
     .delete('/v5/leaderboard/review/49871146-eb0a-4d0e-ab9a-adc94018c5da')
     .reply(204)
+    .get('/v5/reviewTypes?name=AV%20Scan')
+    .reply(200, reviewTypesResponse)
 
   done()
 }, function (done) {
