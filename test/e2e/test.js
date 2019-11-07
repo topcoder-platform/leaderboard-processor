@@ -224,7 +224,7 @@ describe('Topcoder - Leaderboard Processor E2E Test', () => {
     await waitJob()
 
     expect(errorLogs.length).to.equal(0)
-    expect(debugLogs[debugLogs.length - 1]).to.equal(`Ignoring Non review Summation payloads from topic ${message.topic}.`)
+    expect(debugLogs[debugLogs.length - 1]).to.equal(`Ignoring Non review payloads from topic ${message.topic}.`)
   })
 
   for (const op of ['create', 'update', 'delete']) {

@@ -9,6 +9,9 @@ const m2mAuth = require('tc-core-library-js').auth.m2m
 
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
+// Variable to cache reviewTypes from Submission API
+const reviewTypes = {}
+
 /*
  * Function to get M2M token
  * @returns {Promise}
@@ -55,6 +58,25 @@ const reqToAPI = async (reqType, path, reqBody) => {
   })
 }
 
+/*
+ * Function to get reviewTypeId from Name
+ * @param {String} reviewTypeName Name of the reviewType
+ * @returns {String} reviewTypeId
+ */
+const getreviewTypeId = async (reviewTypeName) => {
+  if (!reviewTypes[reviewTypeName]) {
+    // Get review type id from Submission API
+    const response = await reqToAPI('GET', `${config.REVIEW_TYPE_URL}?name=${reviewTypeName}`)
+    if (response.body && response.body.length !== 0) {
+      reviewTypes[reviewTypeName] = response.body[0].id
+    } else {
+      reviewTypes[reviewTypeName] = null
+    }
+  }
+  return reviewTypes[reviewTypeName]
+}
+
 module.exports = {
-  reqToAPI
+  reqToAPI,
+  getreviewTypeId
 }
