@@ -68,7 +68,7 @@ Configuration for the tests is at `config/test.js`, only add such new configurat
 - In the console, write some message, one message per line:
 
 ```bash
-  {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":1,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+  {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":1,"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
 ```
 
 - optionally, use another terminal, go to same directory, start a consumer to view the messages:
@@ -127,7 +127,7 @@ npm start
 5. Write the following message to the Console
 
     ```bash
-    {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":1,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    {"topic":"submission.notification.create","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":-1,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":1,"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
     ```
 
 6. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 does not exists in database. Creating the record`. Also check the leaderboard-api console for more information(Console in step 2)
@@ -141,7 +141,7 @@ npm start
 8. Write the following message to the Console
 
     ```bash
-        {"topic":"submission.notification.update","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":52,"scoreCardId":30001852,"metadata":{"testType":"provisional","assertions":{"pending":0,"failed":2,"total":10},"tests":{"total":10}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
+    {"topic":"submission.notification.update","originator":"submission-api","timestamp":"2018-08-06T15:46:05.575Z","mime-type":"application/json","payload":{"resource":"review","id":"49871146-eb0a-4d0e-ab9a-adc94018c5da","submissionId":"6ff0c009-51ee-4c8e-aa0d-159c20503cc2","score":52,"scoreCardId":30001852,"metadata":{"testType":"provisional","tests":{"pending":0,"failed":2,"total":8}},"created":"2019-11-06T15:02:35.539Z","updated":"2019-11-06T15:02:35.539Z","createdBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","updatedBy":"I3etJtTqlz1XHgCXduBN1us705ufrykl@clients","status":"completed","reviewerId":"0301619c-3d9e-44c3-85cb-c20311100f7f","typeId":"52c91e85-745f-4e62-b592-9879a2dfe9fd"}}
     ```
 
 9. You could see in the console that message will be processed, and find the following message: `Record with Challenge ID # 30051825 and Member ID # 8547899 exists in database. Updating the score`. Also check the leaderboard-api console for more information(Console in step 2)
