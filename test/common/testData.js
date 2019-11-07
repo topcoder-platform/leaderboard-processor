@@ -19,12 +19,9 @@ const testTopics = {
         scoreCardId: 30001852,
         metadata: {
           testType: 'provisional',
-          assertions: {
+          tests: {
             pending: 0,
             failed: 1,
-            total: 10
-          },
-          tests: {
             total: 10
           }
         },
@@ -54,12 +51,9 @@ const testTopics = {
         scoreCardId: 30001852,
         metadata: {
           testType: 'provisional',
-          assertions: {
+          tests: {
             pending: 0,
             failed: 2,
-            total: 10
-          },
-          tests: {
             total: 10
           }
         },
