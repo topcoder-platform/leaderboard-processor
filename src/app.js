@@ -47,7 +47,7 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, a
     return
   }
 
-  const avScanTypeId = await helper.getreviewTypeId('AV Scan')
+  const avScanTypeId = await helper.getreviewTypeId(config.AV_SCAN_NAME)
 
   if (messageJSON.payload.typeId === avScanTypeId) {
     logger.debug(`Ignoring AV Scan reviews from topic ${messageJSON.topic}`)
