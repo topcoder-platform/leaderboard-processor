@@ -22,6 +22,7 @@ module.exports = {
   LEADERBOARD_API_URL: process.env.LEADERBOARD_API_URL || 'https://api.topcoder-dev.com/v5/leaderboard',
   SUBMISSION_API_URL: process.env.SUBMISSION_API_URL || 'https://api.topcoder-dev.com/v5/submissions',
   REVIEW_TYPE_URL: process.env.REVIEW_TYPE_URL || 'https://api.topcoder-dev.com/v5/reviewTypes',
+  AV_SCAN_NAME: process.env.AV_SCAN_NAME || 'AV Scan',
 
   AUTH0_URL: process.env.AUTH0_URL,
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
