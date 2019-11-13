@@ -41,17 +41,19 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, a
     return
   }
 
-  if (messageJSON.payload.resource !== 'review') {
+  if (messageJSON.payload.resource !== 'review' || messageJSON.payload.resource !== 'reviewSummation') {
     logger.debug(`Ignoring Non review payloads from topic ${messageJSON.topic}.`)
     // ignore the message
     return
   }
 
-  const avScanTypeId = await helper.getreviewTypeId(config.AV_SCAN_NAME)
+  if (messageJSON.payload.resource === 'review') {
+    const avScanTypeId = await helper.getreviewTypeId(config.AV_SCAN_NAME)
 
-  if (messageJSON.payload.typeId === avScanTypeId) {
-    logger.debug(`Ignoring AV Scan reviews from topic ${messageJSON.topic}`)
-    return false
+    if (messageJSON.payload.typeId === avScanTypeId) {
+      logger.debug(`Ignoring AV Scan reviews from topic ${messageJSON.topic}`)
+      return false
+    }
   }
 
   return (async () => {
