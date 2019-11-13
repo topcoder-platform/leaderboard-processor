@@ -41,7 +41,7 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, a
     return
   }
 
-  if (messageJSON.payload.resource !== 'review' || messageJSON.payload.resource !== 'reviewSummation') {
+  if (messageJSON.payload.resource !== 'review' && messageJSON.payload.resource !== 'reviewSummation') {
     logger.debug(`Ignoring Non review payloads from topic ${messageJSON.topic}.`)
     // ignore the message
     return
