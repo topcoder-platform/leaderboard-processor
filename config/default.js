@@ -19,7 +19,7 @@ module.exports = {
   UPDATE_DATA_TOPIC: process.env.UPDATE_DATA_TOPIC || 'submission.notification.update',
   DELETE_DATA_TOPIC: process.env.DELETE_DATA_TOPIC || 'submission.notification.delete',
 
-  LEADERBOARD_API_URL: process.env.LEADERBOARD_API_URL || 'https://api.topcoder-dev.com/v5/leaderboard',
+  LEADERBOARD_API_URL: process.env.LEADERBOARD_API_URL || 'https://api.topcoder-dev.com/v5/leaderboards',
   SUBMISSION_API_URL: process.env.SUBMISSION_API_URL || 'https://api.topcoder-dev.com/v5/submissions',
   REVIEW_TYPE_URL: process.env.REVIEW_TYPE_URL || 'https://api.topcoder-dev.com/v5/reviewTypes',
   AV_SCAN_NAME: process.env.AV_SCAN_NAME || 'AV Scan',
