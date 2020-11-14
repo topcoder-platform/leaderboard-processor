@@ -18,6 +18,7 @@ module.exports = {
   CREATE_DATA_TOPIC: process.env.CREATE_DATA_TOPIC || 'submission.notification.create',
   UPDATE_DATA_TOPIC: process.env.UPDATE_DATA_TOPIC || 'submission.notification.update',
   DELETE_DATA_TOPIC: process.env.DELETE_DATA_TOPIC || 'submission.notification.delete',
+  AGGREGATE_DATA_TOPIC: process.env.AGGREGATE_DATA_TOPIC || 'submission.notification.aggregate',
 
   LEADERBOARD_API_URL: process.env.LEADERBOARD_API_URL || 'https://api.topcoder-dev.com/v5/leaderboards',
   SUBMISSION_API_URL: process.env.SUBMISSION_API_URL || 'https://api.topcoder-dev.com/v5/submissions',
