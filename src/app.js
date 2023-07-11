@@ -42,7 +42,7 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, a
   }
 
   if (messageJSON.payload.resource !== 'review' && messageJSON.payload.resource !== 'reviewSummation') {
-    logger.debug(`Ignoring Non review payloads from topic ${messageJSON.topic}.`)
+    logger.debug(`Ignoring Non review or review summation payloads from topic ${messageJSON.topic}.`)
     // ignore the message
     return
   }
@@ -56,8 +56,10 @@ const dataHandler = (messageSet, topic, partition) => Promise.each(messageSet, a
     }
   }
 
+  const originalTopic = messageJSON.payload.originalTopic
+
   return (async () => {
-    switch (topic) {
+    switch (originalTopic) {
       case config.CREATE_DATA_TOPIC:
         await ProcessorService.upsert(messageJSON)
         break
@@ -90,7 +92,7 @@ function check () {
   return connected
 }
 
-const topics = [config.CREATE_DATA_TOPIC, config.UPDATE_DATA_TOPIC, config.DELETE_DATA_TOPIC]
+const topics = [config.AGGREGATE_DATA_TOPIC]
 
 consumer
   .init([{
